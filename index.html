@@ -4,197 +4,165 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Genesis Magma Racing — Timekeeping</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <style>
-  html, body { margin:0; padding:0; background:#0a0a0a; height:100%; overflow:hidden; }
+  html, body {
+    margin:0;
+    padding:0;
+    background:#0a0a0a;
+    height:100%;
+    overflow:hidden;
+  }
+
   body {
+    position:relative;
     display:flex;
-    flex-direction:column;
-    height:100vh;
+    align-items:center;
+    justify-content:center;
     color:#fff;
-    font-family:'Inter', system-ui, -apple-system, sans-serif;
+    font-family:'Pretendard Variable','Pretendard','Inter',system-ui,-apple-system,sans-serif;
     -webkit-font-smoothing:antialiased;
   }
 
-  .top-row {
-    display:flex;
-    flex:1;
-    min-height:0;
+  .now-card {
+    position:absolute;
+    top:72px;
+    left:72px;
+    max-width:46vw;
   }
 
-  .col {
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    padding:48px 40px;
-    min-width:0;
+  .next-card {
+    position:absolute;
+    bottom:72px;
+    right:72px;
+    text-align:right;
+    max-width:46vw;
   }
 
-  .col-side { gap:18px; }
-
-  .col-center {
-    align-items:center;
-    text-align:center;
-    border-left:1px solid #161616;
-    border-right:1px solid #161616;
-  }
-
-  .label {
-    font-size:10px;
+  .card-label {
+    font-size:16px;
+    letter-spacing:0.2em;
+    color:#444;
     text-transform:uppercase;
-    letter-spacing:0.28em;
-    color:#333;
-    font-weight:500;
+    font-weight:600;
+    margin-bottom:12px;
   }
 
-  .side-time {
-    font-family:'SF Mono','Fira Code','Consolas',monospace;
-    font-size:14px;
-    color:#888;
-    letter-spacing:0.05em;
-  }
-
-  .side-title {
-    font-size:20px;
-    color:#fff;
-    font-weight:500;
-    letter-spacing:0.03em;
+  .card-title {
+    font-size:56px;
+    font-weight:700;
+    color:#ffffff;
     line-height:1.2;
+    letter-spacing:-0.005em;
   }
 
-  .side-part {
-    font-size:13px;
+  .card-time {
+    font-size:26px;
+    font-weight:700;
+    color:#d45c00;
+    margin-top:12px;
+    letter-spacing:0.03em;
+  }
+
+  .card-part {
+    font-size:18px;
     color:#555;
-    letter-spacing:0.05em;
-    line-height:1.4;
+    margin-top:6px;
+    letter-spacing:0.02em;
   }
 
-  .side-empty {
-    font-size:28px;
-    color:#222;
-    font-weight:300;
+  .next-card .card-label {
+    font-size:12px;
+    margin-bottom:10px;
   }
+  .next-card .card-title { font-size:40px; }
+  .next-card .card-time { font-size:16px; margin-top:8px; }
+  .next-card .card-part { font-size:14px; margin-top:4px; }
+
+  .card-time.hidden, .card-part.hidden { display:none; }
 
   .logo {
-    height:70px;
+    position:absolute;
+    top:72px;
+    right:72px;
+    height:100px;
     width:auto;
-    margin-bottom:32px;
     opacity:0.95;
   }
 
+  .center {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
   .clock {
-    font-family:'SF Mono','Fira Code','Consolas',monospace;
-    font-weight:200;
-    font-size:120px;
+    font-weight:800;
+    font-size:clamp(6rem, 22vw, 14rem);
     line-height:1;
-    color:#fff;
+    color:#ffffff;
     letter-spacing:-0.02em;
     display:flex;
     align-items:baseline;
     justify-content:center;
+    font-feature-settings:"tnum";
+    font-variant-numeric:tabular-nums;
   }
   .clock .sec {
-    color:#333;
-    font-size:60px;
+    color:#2a2a2a;
+    font-weight:800;
   }
   .clock .ms {
-    color:#222;
-    font-size:24px;
-    margin-left:0.3em;
-    font-weight:300;
+    color:#1e1e1e;
+    font-size:22px;
+    margin-left:8px;
+    align-self:center;
+    font-weight:600;
   }
 
   .date {
-    margin-top:24px;
-    font-size:13px;
-    color:#2e2e2e;
-    letter-spacing:0.22em;
+    margin-top:14px;
+    font-size:14px;
+    color:#555;
+    letter-spacing:0.1em;
     text-transform:uppercase;
     font-weight:500;
   }
 
   .tz {
-    margin-top:8px;
+    margin-top:5px;
     font-size:11px;
-    color:#1e1e1e;
-    letter-spacing:0.18em;
+    color:#444;
+    letter-spacing:0.15em;
     text-transform:uppercase;
-  }
-
-  .now-section {
-    flex-shrink:0;
-    background:#d45c00;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    padding:20px 24px 64px 24px;
-    gap:6px;
-  }
-
-  .now-label {
-    font-size:16px;
-    letter-spacing:0.25em;
-    color:rgba(255,255,255,0.45);
-    text-transform:uppercase;
-    font-weight:600;
-  }
-
-  .now-title {
-    font-size:40px;
-    color:#fff;
-    font-weight:500;
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    text-align:center;
-    line-height:1.2;
-  }
-
-  .now-meta {
-    font-size:25px;
-    color:rgba(255,255,255,0.6);
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    text-align:center;
-    font-family:'SF Mono','Fira Code','Consolas',monospace;
-    min-height:1em;
-  }
-
-  @media (max-width: 900px) {
-    .col { padding:24px 18px; }
-    .logo { height:60px; margin-bottom:22px; }
-    .date { margin-top:16px; font-size:11px; }
-    .now-title { font-size:20px; }
-    .now-meta { font-size:12px; }
   }
 </style>
 </head>
 <body>
-  <div class="top-row">
-    <div class="col col-side" id="prev-col">
-      <div class="label">PREV</div>
-      <div id="prev-body"><div class="side-empty">—</div></div>
-    </div>
 
-    <div class="col col-center">
-      <img class="logo" src="logo.png" alt="Genesis Magma Racing" />
-      <div class="clock">
-        <span id="hm">--:--</span><span class="sec" id="sec">:--</span><span class="ms" id="ms">.000</span>
-      </div>
-      <div class="date" id="date">—</div>
-      <div class="tz" id="tz">—</div>
-    </div>
-
-    <div class="col col-side" id="next-col" style="align-items:flex-end; text-align:right;">
-      <div class="label">NEXT</div>
-      <div id="next-body"><div class="side-empty">—</div></div>
-    </div>
+  <div class="now-card">
+    <div class="card-label">NOW</div>
+    <div class="card-title" id="now-title">NO ACTIVE SESSION</div>
+    <div class="card-time hidden" id="now-time"></div>
+    <div class="card-part hidden" id="now-part"></div>
   </div>
 
-  <div class="now-section">
-    <div class="now-label">NOW</div>
-    <div class="now-title" id="now-title">NO ACTIVE SESSION</div>
-    <div class="now-meta" id="now-meta"></div>
+  <img class="logo" src="logo.png" alt="Genesis Magma Racing" />
+
+  <div class="center">
+    <div class="clock">
+      <span id="hm">--:--</span><span class="sec" id="sec">:--</span><span class="ms" id="ms">.000</span>
+    </div>
+    <div class="date" id="date">—</div>
+    <div class="tz" id="tz">—</div>
+  </div>
+
+  <div class="next-card">
+    <div class="card-label">NEXT</div>
+    <div class="card-title" id="next-title">NO UPCOMING SESSION</div>
+    <div class="card-time hidden" id="next-time"></div>
+    <div class="card-part hidden" id="next-part"></div>
   </div>
 
 <script>
@@ -377,33 +345,23 @@ function computeSlots(now) {
   return { current, prev, next };
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function renderSide(id, item) {
-  const el = $(id);
+function renderCard(prefix, item, emptyText) {
+  const titleEl = $(`${prefix}-title`);
+  const timeEl = $(`${prefix}-time`);
+  const partEl = $(`${prefix}-part`);
   if (!item) {
-    el.innerHTML = '<div class="side-empty">—</div>';
-    return;
-  }
-  el.innerHTML = `
-    <div class="side-time">${escapeHtml(item.start)} → ${escapeHtml(item.end)}</div>
-    <div class="side-title">${escapeHtml(item.title)}</div>
-    <div class="side-part">${escapeHtml(item.participants)}</div>
-  `;
-}
-
-function renderNow(item) {
-  const titleEl = $('now-title');
-  const metaEl = $('now-meta');
-  if (!item) {
-    titleEl.textContent = 'NO ACTIVE SESSION';
-    metaEl.textContent = '';
+    titleEl.textContent = emptyText;
+    timeEl.classList.add('hidden');
+    partEl.classList.add('hidden');
+    timeEl.textContent = '';
+    partEl.textContent = '';
     return;
   }
   titleEl.textContent = item.title;
-  metaEl.textContent = `${item.start} → ${item.end} · ${item.participants}`;
+  timeEl.textContent = `${item.start} → ${item.end}`;
+  partEl.textContent = item.participants;
+  timeEl.classList.remove('hidden');
+  partEl.classList.remove('hidden');
 }
 
 const DAYS = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
@@ -425,10 +383,9 @@ function renderDateTZ() {
 
 function tick() {
   const now = new Date();
-  const { current, prev, next } = computeSlots(now);
-  renderSide('prev-body', prev);
-  renderSide('next-body', next);
-  renderNow(current);
+  const { current, next } = computeSlots(now);
+  renderCard('now', current, 'NO ACTIVE SESSION');
+  renderCard('next', next, 'NO UPCOMING SESSION');
   renderDateTZ();
 }
 
