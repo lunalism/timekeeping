@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis Magma Racing · Time Keeping</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+
+  body {
+    background: #0a0a0a;
+    color: #ffffff;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    text-align: center;
+  }
+
+  .brand {
+    color: #2a2a2a;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .time-wrapper {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .time {
+    color: #ffffff;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 200;
+    font-size: clamp(4rem, 14vw, 9rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ms {
+    color: #2a2a2a;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 200;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .date {
+    color: #3a3a3a;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .tz {
+    color: #1e1e1e;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+</style>
+</head>
+<body>
+  <main class="container">
+    <div class="brand">GENESIS MAGMA RACING</div>
+    <div class="time-wrapper">
+      <div class="time" id="time">00:00:00</div>
+      <div class="ms" id="ms">.000</div>
+    </div>
+    <div class="meta">
+      <div class="date" id="date"></div>
+      <div class="tz" id="tz"></div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      const timeEl = document.getElementById('time');
+      const msEl = document.getElementById('ms');
+      const dateEl = document.getElementById('date');
+      const tzEl = document.getElementById('tz');
+
+      tzEl.textContent = tz.toUpperCase();
+
+      const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: tz
+      });
+
+      const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: tz
+      });
+
+      let lastDate = '';
+
+      function formatDate(now) {
+        const parts = dateFormatter.formatToParts(now);
+        const get = (type) => {
+          const p = parts.find((x) => x.type === type);
+          return p ? p.value : '';
+        };
+        const weekday = get('weekday').toUpperCase();
+        const day = get('day');
+        const month = get('month').toUpperCase();
+        const year = get('year');
+        return `${weekday} · ${day} ${month} ${year}`;
+      }
+
+      function tick() {
+        const now = new Date();
+
+        timeEl.textContent = timeFormatter.format(now);
+        msEl.textContent = '.' + now.getMilliseconds().toString().padStart(3, '0');
+
+        const nextDate = formatDate(now);
+        if (nextDate !== lastDate) {
+          dateEl.textContent = nextDate;
+          lastDate = nextDate;
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
